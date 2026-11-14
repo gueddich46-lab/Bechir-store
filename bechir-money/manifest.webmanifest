@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "BECHIR MONEY — بشير قديش",
+  "short_name": "BECHIR MONEY",
+  "description": "إدارة المال والديون والادخار بالدينار التونسي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f8ff",
+  "theme_color": "#386bff",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
