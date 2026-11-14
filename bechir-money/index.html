@@ -53,7 +53,7 @@ async function startAutomaticSync(user){
    if(currentUser?.uid!==uid||!snap.exists())return;
    const v=snap.data();if(!valid(v.data)){syncStatus('بيانات المزامنة غير صالحة؛ احتفظ بنسخة JSON');return}
    cloudState=v;
-   const merged=merge(v.data,window.BechirReadLocal(),v.deleted||[]);
+   const merged=merge(v.data,window.BechirReadLocal(),[...(v.deleted||[]),...pendingDeletes]);
    if(!equal(merged,window.BechirReadLocal())){remoteApplying=true;window.BechirApplyCloud(merged);remoteApplying=false}
    syncReady=true;syncStatus('☁️ المزامنة التلقائية متصلة');
    if(!equal(merged,v.data)||pendingDeletes.size)queueSync(()=>pushChanges(uid));
