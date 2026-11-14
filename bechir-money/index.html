@@ -28,7 +28,7 @@ import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmai
 import {getFirestore,doc,getDoc,setDoc,runTransaction,onSnapshot} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyBWoFh3jRn0gt09I3NehOJIzHTfgqWcKuc",authDomain:"bechir-money.firebaseapp.com",projectId:"bechir-money",storageBucket:"bechir-money.firebasestorage.app",messagingSenderId:"1077028429870",appId:"1:1077028429870:web:e9edceb15986dbed613fbf",measurementId:"G-D7DEM36R36"});
 const auth=getAuth(app),store=getFirestore(app),el=id=>document.getElementById(id);
-let currentUser=null,busy=false,stopSync=null,syncReady=false,cloudState=null,uploadQueue=Promise.resolve(),pendingDeletes=new Set(),remoteApplying=false;
+let currentUser=null,busy=false,stopSync=null,syncReady=false,cloudState=null,uploadQueue=Promise.resolve(),pendingDeletes=new Set(),remoteApplying=false,suppressNextChange=false;
 const status=(message)=>el('authStatus').textContent=message;
 const syncStatus=(message)=>el('syncStatus').textContent=message;
 const friendly=e=>({ 'auth/email-already-in-use':'البريد الإلكتروني مستخدم بالفعل','auth/invalid-email':'عنوان البريد الإلكتروني غير صالح','auth/weak-password':'كلمة المرور ضعيفة','auth/invalid-credential':'البريد الإلكتروني أو كلمة المرور غير صحيحة','auth/too-many-requests':'محاولات كثيرة، حاول لاحقًا','permission-denied':'تم رفض العملية من قواعد Firestore؛ تحقق من نشر قواعد الحماية','auth/unauthorized-domain':'يجب إضافة نطاق GitHub Pages إلى Authorized domains في Firebase Authentication','invalid-local-data':'البيانات المحلية غير مكتملة؛ نزّل نسخة JSON أولًا وتحقق من السجلات قبل المزامنة','invalid-backup':'النسخة السحابية غير صالحة للاستعادة'}[e.code]||'تعذرت العملية: '+(e.code||'تحقق من الاتصال والإعدادات'));
@@ -70,10 +70,19 @@ async function pushChanges(uid){
   const data=merge(v.data,local,tomb);
   t.set(ref,{version:1,data,deleted:tomb,updatedAt:new Date().toISOString()});
  });
- deletes.forEach(x=>pendingDeletes.delete(x));syncStatus('☁️ تمت مزامنة التغييرات');
+ deletes.forEach(x=>pendingDeletes.delete(x));const refreshed=merge(window.BechirReadLocal(),empty(),deletes);if(!equal(refreshed,window.BechirReadLocal()))window.BechirApplyCloud(refreshed);syncStatus('☁️ تمت مزامنة التغييرات والحذف');
 }
-window.addEventListener('bechir-local-delete',e=>{pendingDeletes.add(e.detail.kind+':'+e.detail.id)});
-window.addEventListener('bechir-local-change',()=>{if(!remoteApplying&&currentUser&&syncReady)queueSync(()=>pushChanges(currentUser.uid))});
+window.addEventListener('bechir-local-delete',e=>{
+ const key=e.detail.kind+':'+e.detail.id;
+ pendingDeletes.add(key);
+ suppressNextChange=true;
+ if(currentUser&&syncReady){const uid=currentUser.uid;queueSync(()=>pushChanges(uid))}
+ else syncStatus('الحذف محفوظ على الجهاز، وسيرسل إلى السحابة عند عودة الاتصال');
+});
+window.addEventListener('bechir-local-change',()=>{
+ if(suppressNextChange){suppressNextChange=false;return}
+ if(!remoteApplying&&currentUser&&syncReady)queueSync(()=>pushChanges(currentUser.uid))
+});
 el('loginAction').onclick=()=>run(async()=>{await signInWithEmailAndPassword(auth,el('loginEmail').value.trim(),el('loginPassword').value)});
 el('registerAction').onclick=()=>run(async()=>{const email=el('registerEmail').value.trim(),password=el('registerPassword').value,confirm=el('registerConfirm').value,name=el('registerName').value.trim();if(!name||!email||password.length<8||password!==confirm){status('أدخل الاسم والبريد الإلكتروني وكلمة مرور من 8 أحرف على الأقل مع تأكيد مطابق');return}const result=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(result.user,{displayName:name});el('signedInName').textContent='👤 '+name;status('تم إنشاء الحساب. الصورة الشخصية ما زالت للمعاينة المحلية فقط.')});
 el('resetAction').onclick=()=>run(async()=>{const email=el('loginEmail').value.trim();if(!email){status('اكتب بريدك الإلكتروني أولًا');return}await sendPasswordResetEmail(auth,email);status('إذا كان البريد مسجّلًا، ستصلك رسالة لإعادة تعيين كلمة المرور')});
