@@ -17,6 +17,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
+      - name: Render approved gold Arabic app icon
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq librsvg2-bin fonts-noto-core
+          mkdir -p bechir-mushaf-android/app/src/main/res/drawable-nodpi
+          rsvg-convert -w 432 -h 432 bechir-mushaf-android/icon-source.svg -o bechir-mushaf-android/app/src/main/res/drawable-nodpi/app_icon.png
       - name: Build Android debug APK
         run: gradle :app:assembleDebug --no-daemon --stacktrace
         working-directory: bechir-mushaf-android
