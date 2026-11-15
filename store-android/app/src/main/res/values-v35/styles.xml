@@ -1,0 +1,8 @@
+<resources>
+    <style name="BechirStoreTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FFFFFF</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>
