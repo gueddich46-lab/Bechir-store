@@ -1,0 +1,52 @@
+name: Publish BECHIR KEYBOARD direct APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/publish-bechir-keyboard.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout store
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Checkout keyboard source at verified V2.0 commit
+        uses: actions/checkout@v4
+        with:
+          repository: gueddich46-lab/BECHIR-KEYBOARD
+          ref: 217cd68bfdd1f72e5f31ed95ec3b9a59f8ae5e5b
+          path: keyboard-source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Generate icons and build original keyboard
+        working-directory: keyboard-source
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 scripts/generate_icons.py
+          gradle --no-daemon assembleDebug
+      - name: Publish APK as same-origin static download
+        run: |
+          mkdir -p downloads
+          cp keyboard-source/app/build/outputs/apk/debug/app-debug.apk downloads/BECHIR-KEYBOARD.apk
+          test -s downloads/BECHIR-KEYBOARD.apk
+          unzip -t downloads/BECHIR-KEYBOARD.apk | tail -1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloads/BECHIR-KEYBOARD.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish BECHIR KEYBOARD v2.0 APK for direct Pages download"
+            git push
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BECHIR-KEYBOARD-store-APK
+          path: downloads/BECHIR-KEYBOARD.apk
