@@ -15,12 +15,24 @@ import android.webkit.WebSettings;
 import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
+import android.view.View;
+import android.view.WindowInsets;
 public class MainActivity extends Activity {
  private WebView web;
  private static final String STORE="https://gueddich46-lab.github.io/Bechir-store/";
  @Override public void onCreate(Bundle state){super.onCreate(state);
  getWindow().setStatusBarColor(Color.WHITE);getWindow().getDecorView().setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
- web=new WebView(this);setContentView(web);web.setWebChromeClient(new WebChromeClient());
+ web=new WebView(this);
+ // Android 15/16 edge-to-edge: keep the WebView content outside status/navigation bars.
+ web.setFitsSystemWindows(false);
+ web.setOnApplyWindowInsetsListener((view, insets) -> {
+   android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout());
+   view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+   return insets;
+ });
+ setContentView(web);
+ web.requestApplyInsets();
+ web.setWebChromeClient(new WebChromeClient());
  web.setWebViewClient(new WebViewClient(){
   @Override public boolean shouldOverrideUrlLoading(WebView view,String url){return handle(url);}
   @Override public boolean shouldOverrideUrlLoading(WebView view,android.webkit.WebResourceRequest request){return handle(request.getUrl().toString());}
