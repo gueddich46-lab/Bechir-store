@@ -35,5 +35,38 @@ assert source in html
 html=html.replace(source,"pages/")
 html=html.replace("<title>مصحف بشير — تجربة الفاتحة</title>","<title>مصحف بشير</title>")
 html=html.replace("</style></head>","#downloadPages{display:none!important}</style></head>",1)
+audio_js = """
+<script>
+(function(){
+ const bridge=window.BechirAudio;
+ if(!bridge)return;
+ const original=window.ayahUrl;
+ // The existing player calls ayahUrl when selecting each verse.
+ window.ayahUrl=function(s,a){
+   const name=String(s).padStart(3,'0')+String(a).padStart(3,'0')+'.mp3';
+   return bridge.has(s,a)?'https://bechir-audio.local/'+name:original(s,a);
+ };
+ const btn=document.getElementById('download');
+ if(!btn)return;
+ btn.textContent='⬇ تنزيل صوت السورة';
+ btn.onclick=function(){
+  const s=Number(document.getElementById('surahAudio').value)||1;
+  const count=AYAH_COUNTS[s-1];
+  if(bridge.busy()){alert('يجري تنزيل سورة بالفعل، انتظر اكتمالها.');return}
+  if(confirm('تنزيل تلاوة الحصري لسورة '+SURAHS[s-1]+' ('+count+' آية)؟\\nسيتم حفظ الصوت داخل التطبيق للاستماع دون إنترنت.')){
+   btn.textContent='⏳ بدء التنزيل';
+   bridge.downloadSurah(s,count);
+  }
+ };
+ window.audioDownloadProgress=function(s,done,total,error){
+  btn.textContent=error?'⚠ تعذر التنزيل':done===total?'✓ اكتمل صوت السورة':'⬇ تنزيل '+done+'/'+total;
+  if(error)alert('تعذر التنزيل، يمكنك المحاولة مجددًا لاستكمال الملفات المحفوظة. '+error);
+  else if(done===total)alert('اكتمل تنزيل سورة '+SURAHS[s-1]+'. يمكنك الآن الاستماع إليها دون إنترنت.');
+ };
+})();
+</script>
+"""
+# Override the original handler after the app's existing script has executed.
+html=html.replace("</body>",audio_js+"</body>")
 (assets/"index.html").write_text(html,encoding="utf-8")
 print("Bundled 604 validated WEBP pages and local index.html; total MB:",round(sum(p.stat().st_size for p in pages.glob("*.webp"))/1048576,1))
