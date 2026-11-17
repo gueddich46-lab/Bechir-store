@@ -1,0 +1,34 @@
+name: Build BECHIR SCIENCE APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'BECHIR-SCIENCE-ANDROID-STUDIO-PROJECT.zip'
+      - '.github/workflows/build-bechir-science.yml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack Android project
+        run: |
+          test -f BECHIR-SCIENCE-ANDROID-STUDIO-PROJECT.zip
+          unzip -q BECHIR-SCIENCE-ANDROID-STUDIO-PROJECT.zip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Build debug APK
+        working-directory: BECHIR-SCIENCE-ANDROID-SOURCE
+        run: gradle --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BECHIR-SCIENCE-debug-APK
+          path: BECHIR-SCIENCE-ANDROID-SOURCE/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
