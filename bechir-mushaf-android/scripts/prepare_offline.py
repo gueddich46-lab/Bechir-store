@@ -35,7 +35,7 @@ assert source in html
 html=html.replace(source,"pages/")
 html=html.replace("<title>مصحف بشير — تجربة الفاتحة</title>","<title>مصحف بشير</title>")
 html=html.replace("</style></head>","#downloadPages{display:none!important}</style></head>",1)
-audio_js = """
+audio_js = r"""
 <script>
 (function(){
  const bridge=window.BechirAudio;
