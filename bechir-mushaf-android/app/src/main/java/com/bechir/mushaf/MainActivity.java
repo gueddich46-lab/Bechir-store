@@ -18,10 +18,10 @@ public class MainActivity extends Activity {
  getWindow().setNavigationBarColor(Color.rgb(8,34,29));
  getWindow().getDecorView().setSystemUiVisibility(0);
  web=new WebView(this);setContentView(web);
- WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setAllowFileAccess(false);settings.setCacheMode(WebSettings.LOAD_DEFAULT);settings.setMediaPlaybackRequiresUserGesture(false);
+ WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setAllowFileAccess(true);settings.setCacheMode(WebSettings.LOAD_DEFAULT);settings.setMediaPlaybackRequiresUserGesture(false);
  web.setWebChromeClient(new WebChromeClient());
- web.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request){Uri uri=request.getUrl();if("gueddich46-lab.github.io".equals(uri.getHost()))return false;startActivity(new Intent(Intent.ACTION_VIEW,uri));return true;}});
- web.loadUrl("https://gueddich46-lab.github.io/Bechir-store/bechir-mushaf-test/?app=android1");
+ web.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request){Uri uri=request.getUrl();if("file".equals(uri.getScheme()))return false;startActivity(new Intent(Intent.ACTION_VIEW,uri));return true;}});
+ web.loadUrl("file:///android_asset/index.html");
  }
  @Override public void onBackPressed(){if(web.canGoBack())web.goBack();else super.onBackPressed();}
 }
