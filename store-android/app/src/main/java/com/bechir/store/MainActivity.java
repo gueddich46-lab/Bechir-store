@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
+import android.webkit.WebStorage;
 import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -40,9 +41,10 @@ public class MainActivity extends Activity {
   @Override public boolean shouldOverrideUrlLoading(WebView view,String url){return handle(url);}
   @Override public boolean shouldOverrideUrlLoading(WebView view,android.webkit.WebResourceRequest request){return handle(request.getUrl().toString());}
  });
- WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);
+ WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+ web.clearCache(true);
  web.setDownloadListener((url,ua,disposition,mime,length)->download(url,ua,disposition,mime));
- web.loadUrl(STORE);
+ web.loadUrl(STORE+"?app_refresh=20261117");
  }
  private boolean handle(String url){
   if(isApkDownload(url)){download(url,null,null,"application/vnd.android.package-archive");return true;}
