@@ -105,14 +105,16 @@ jobs:
         run: gradle -p android assembleDebug --no-daemon
       - name: Publish APK to downloads
         run: |
-          mkdir -p downloads
-          cp android/app/build/outputs/apk/debug/app-debug.apk downloads/bechir-store.apk
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Synchronize before copying the binary APK to avoid rebase conflicts.
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p downloads
+          cp android/app/build/outputs/apk/debug/app-debug.apk downloads/bechir-store.apk
           git add downloads/bechir-store.apk
           if ! git diff --cached --quiet; then
             git commit -m "Publish متجر بشير Android APK"
-            git pull --rebase origin main
             git push origin HEAD:main
           fi
       - uses: actions/upload-artifact@v4
