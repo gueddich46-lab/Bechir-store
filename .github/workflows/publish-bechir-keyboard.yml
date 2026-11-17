@@ -14,11 +14,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Checkout keyboard source at verified V2.0 commit
+      - name: Checkout keyboard source at latest revised keyboard commit
         uses: actions/checkout@v4
         with:
           repository: gueddich46-lab/BECHIR-KEYBOARD
-          ref: 217cd68bfdd1f72e5f31ed95ec3b9a59f8ae5e5b
+          ref: e8608b7a651956fd2c6859e8b9db157350490d41
           path: keyboard-source
       - uses: actions/setup-java@v4
         with:
@@ -43,7 +43,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add downloads/BECHIR-KEYBOARD.apk
           if ! git diff --cached --quiet; then
-            git commit -m "Publish BECHIR KEYBOARD v2.0 APK for direct Pages download"
+            git commit -m "Publish BECHIR KEYBOARD revised APK for direct Pages download"
             git push
           fi
       - uses: actions/upload-artifact@v4
