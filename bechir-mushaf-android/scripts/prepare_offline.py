@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlopen
 import time
 
-root=Path(__file__).resolve().parents[1]
+root=Path(__file__).resolve().parents[2]
 assets=root/"bechir-mushaf-android/app/src/main/assets"
 pages=assets/"pages"
 pages.mkdir(parents=True,exist_ok=True)
