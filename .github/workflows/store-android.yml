@@ -1,4 +1,4 @@
-name: Build BECHIR STORE Android APK
+name: Build متجر بشير Android APK
 on:
   workflow_dispatch:
   push:
@@ -48,7 +48,7 @@ jobs:
           cat > android/app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
             <uses-permission android:name="android.permission.INTERNET"/>
-            <application android:label="BECHIR STORE" android:icon="@drawable/store_launcher" android:roundIcon="@drawable/store_launcher" android:usesCleartextTraffic="false" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:supportsRtl="true">
+            <application android:label="متجر بشير" android:icon="@drawable/store_launcher" android:roundIcon="@drawable/store_launcher" android:usesCleartextTraffic="false" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:supportsRtl="true">
               <activity android:name=".MainActivity" android:exported="true">
                 <intent-filter>
                   <action android:name="android.intent.action.MAIN"/>
@@ -97,7 +97,7 @@ jobs:
             }
           }
           EOF
-      - name: Render identical purple B launcher icon
+      - name: Render purple and gold Arabic launcher icon
         run: |
           python3 -m pip install --user cairosvg
           python3 -c "import cairosvg; cairosvg.svg2png(url='android-launcher.svg',write_to='android/app/src/main/res/drawable-nodpi/store_launcher.png',output_width=432,output_height=432)"
@@ -111,7 +111,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add downloads/bechir-store.apk
           if ! git diff --cached --quiet; then
-            git commit -m "Publish BECHIR STORE Android APK"
+            git commit -m "Publish متجر بشير Android APK"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
