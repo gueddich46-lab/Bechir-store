@@ -25,6 +25,8 @@ jobs:
           sudo apt-get install -y -qq librsvg2-bin fonts-noto-core
           mkdir -p bechir-mushaf-android/app/src/main/res/drawable-nodpi
           rsvg-convert -w 432 -h 432 bechir-mushaf-android/icon-source.svg -o bechir-mushaf-android/app/src/main/res/drawable-nodpi/app_icon.png
+      - name: Bundle and validate all 604 Mushaf pages for offline reading
+        run: python3 bechir-mushaf-android/scripts/prepare_offline.py
       - name: Build Android debug APK
         run: gradle :app:assembleDebug --no-daemon --stacktrace
         working-directory: bechir-mushaf-android
