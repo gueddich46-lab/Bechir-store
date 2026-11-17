@@ -34,6 +34,9 @@ public class MainActivity extends Activity {
  web.requestApplyInsets();
  web.setWebChromeClient(new WebChromeClient());
  web.setWebViewClient(new WebViewClient(){
+  @Override public void onPageFinished(WebView view,String url){
+   view.evaluateJavascript("document.documentElement.classList.remove('android-embedded')",null);
+  }
   @Override public boolean shouldOverrideUrlLoading(WebView view,String url){return handle(url);}
   @Override public boolean shouldOverrideUrlLoading(WebView view,android.webkit.WebResourceRequest request){return handle(request.getUrl().toString());}
  });
@@ -42,7 +45,7 @@ public class MainActivity extends Activity {
  web.loadUrl(STORE);
  }
  private boolean handle(String url){
-  if(url.toLowerCase(java.util.Locale.ROOT).matches("https?://[^?#]+\\.apk(?:[?#].*)?")){download(url,null,null,"application/vnd.android.package-archive");return true;}
+  if(isApkDownload(url)){download(url,null,null,"application/vnd.android.package-archive");return true;}
   Uri uri=Uri.parse(url);
   if("https".equals(uri.getScheme())||"http".equals(uri.getScheme())){
    if("gueddich46-lab.github.io".equalsIgnoreCase(uri.getHost())&&uri.getPath()!=null&&uri.getPath().startsWith("/Bechir-store/"))return false;
@@ -51,11 +54,17 @@ public class MainActivity extends Activity {
   }
   return false;
  }
+ private boolean isApkDownload(String url){
+  Uri uri=Uri.parse(url);
+  String path=uri.getPath()==null?"":uri.getPath().toLowerCase(java.util.Locale.ROOT);
+  String host=uri.getHost()==null?"":uri.getHost().toLowerCase(java.util.Locale.ROOT);
+  return "https".equalsIgnoreCase(uri.getScheme()) && (path.endsWith(".apk") || ((host.equals("github.com") || host.equals("www.github.com")) && path.contains("/releases/download/")));
+ }
  private void download(String url,String ua,String disposition,String mime){
   try{
    if(!url.startsWith("https://"))throw new IllegalArgumentException("Only HTTPS downloads allowed");
    String filename=URLUtil.guessFileName(url,disposition,"application/vnd.android.package-archive");
-   if(!filename.toLowerCase(java.util.Locale.ROOT).endsWith(".apk"))filename="BECHIR-MONEY.apk";
+   if(!filename.toLowerCase(java.util.Locale.ROOT).endsWith(".apk"))filename="application.apk";
    DownloadManager.Request request=new DownloadManager.Request(Uri.parse(url));
    request.setTitle(filename);request.setDescription("BECHIR STORE");
    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
